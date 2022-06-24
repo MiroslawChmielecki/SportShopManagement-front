@@ -1,27 +1,21 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useState} from 'react';
+import {Main} from "./components/layout/Main/Main";
+import {Footer} from "./components/layout/Footer/Footer";
+import './App.css'
+import {SearchProductsContext} from "./context/search.context";
+import {Header} from "./components/layout/Header/Header";
 
-function App() {
-
+export const App = () => {
+    const [searchProducts, setSearchProducts] = useState('');
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo"/>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
-        </div>
+        <SearchProductsContext.Provider value={{searchProducts, setSearchProducts}}>
+            <div className='App'>
+                <Header/>
+                <Main/>
+                <Footer/>
+            </div>
+        </SearchProductsContext.Provider>
     );
-}
+};
 
-export default App;
+
