@@ -5,5 +5,8 @@ export const Header = () => (
     <>
         <h2>Header</h2>
         <AdminBtn text="Panel administratora" to="/product"/>
+        <AdminBtn text="Sklep" to="/shop"/>
+        <AdminBtn text="Regulamin sklepu" to="/store-policy"/>
+        <AdminBtn text="Kontakt" to="/contact"/>
     </>
 )
