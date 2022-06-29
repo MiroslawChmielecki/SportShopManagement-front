@@ -1,15 +1,18 @@
-import React, {SyntheticEvent, useContext} from "react";
+import React, {SyntheticEvent, useContext, useState} from "react";
 import {ProductEntity} from "types";
 import {SearchProductsContext} from "../../../context/search.context";
 import {AdminBtn} from "../../common/AdminBtn/AdminBtn";
+import {apiUrl} from "../../../config/api";
+import {Spinner} from "../../common/Spinner/Spinner";
 
 interface Props {
     product: ProductEntity,
-    refreshList: () => void;
+    refreshSearchingList: () => void;
 }
 
 export const RemoveProduct = (props: Props) => {
     const {searchProducts, setSearchProducts} = useContext(SearchProductsContext);
+    const [loading, setLoading] = useState(false);
 
     const deleteProduct = async (e: SyntheticEvent) => {
         e.preventDefault();
@@ -18,23 +21,27 @@ export const RemoveProduct = (props: Props) => {
             return;
         }
 
-       await fetch(`http://localhost:3001/product/${props.product.id}`, {
-            method: 'DELETE',
-        });
+        setLoading(true);
+         try {
+             await fetch(`${apiUrl}/product/${props.product.id}`, {
+                 method: 'DELETE',
+             });
 
-        setSearchProducts(searchProducts);
+             setSearchProducts(searchProducts);
 
-        props.refreshList();
+             props.refreshSearchingList();
+         } finally {
+             setLoading(false);
+         }
     }
 
+    if(loading) return <Spinner/>;
+
     return (
-        <AdminBtn text="Usuń produkt" onClick={deleteProduct}/>
+        <>
+            <AdminBtn text="Usuń produkt" onClick={deleteProduct}/>
+        </>
+
     )
 }
 
-//wpisujemy wszystkie kody ktore obslugujwmy
-// if([400 || 500].includes(res.status)) {
-//     const err = await res.json()
-//     alert(`błąd ${err.message}`)
-//     return
-// }

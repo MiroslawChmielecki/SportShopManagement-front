@@ -3,25 +3,17 @@ import {CreateProductEntity, ProductCategory} from 'types';
 import {Spinner} from "../../common/Spinner/Spinner";
 import {ProductEntity} from "types";
 import {AdminBtn} from "../../common/AdminBtn/AdminBtn";
-
+import {apiUrl} from "../../../config/api";
+import {productEntityInitial} from "../../../utils/productEntityInitial";
+import {ErrorShow} from "../../ErrorShow/ErrorShow";
 
 export const AddProduct = () => {
 
-    const initialStateInForm = {
-        name: '',
-        imgPath: '.........',
-        description: '..........',
-        price: 5,
-        category: ProductCategory.soccer,
-        brand: '...........',
-        dateAdded: '2022-06-22',
-        quantity: 3,
-    }
-
-    const [form, setForm] = useState<CreateProductEntity>(initialStateInForm);
-
+    const [form, setForm] = useState<CreateProductEntity>(productEntityInitial);
     const [loading, setLoading] = useState<boolean>(false);
     const [resultInfo, setResultInfo] = useState<string | null>(null);
+    const [productId, setProductId] = useState<string>('');
+    const [errorInfo, setErrorInfo] = useState<string | null>(null);
 
     const updateForm = (key: string, value: string | number) => {
         setForm(form => ({
@@ -36,23 +28,32 @@ export const AddProduct = () => {
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:3001/product', {
+            const res = await fetch(`${apiUrl}/product`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(form)
+                body: JSON.stringify(form as CreateProductEntity)
             });
+
+            if ([400 || 500 || 404].includes(res.status)) {
+                const err = await res.json()
+                setErrorInfo(err.message);
+                return
+            }
+
+            setErrorInfo(null);
+
             const data: ProductEntity = await res.json();
-            console.log(data)
+            setProductId(data.id);
+
             //czyscimy pola w formularzu
-            setForm(form => initialStateInForm);
-            setResultInfo(`${data.name} added with ID ${data.id}`);
+            setForm(form => productEntityInitial);
+            setResultInfo(`produkt ${data.name} dodany do sklepu`);
         } finally {
             setLoading(false);
         }
     };
-
 
     if (loading) {
         return <Spinner/>
@@ -64,12 +65,14 @@ export const AddProduct = () => {
                 <p>{resultInfo}</p>
                 <AdminBtn text="Dodaj kolejny produkt" onClick={() => setResultInfo(null)}/>
                 <AdminBtn text="Lista szukanych produktów" to="/product"/>
+                <AdminBtn text="Pokaż produkt" to={`/product/${productId}`}/>
             </>
         )
     }
 
     return (
         <>
+            {errorInfo !== null && <ErrorShow errorInfo={errorInfo}/> }
             <h2>Formularz dodawania</h2>
             <form onSubmit={sendForm}>
                 <label>
@@ -77,7 +80,9 @@ export const AddProduct = () => {
                     <input
                         type="text"
                         value={form.name}
-                        onChange={e => updateForm('name', e.target.value)}/>
+                        onChange={e => updateForm('name', e.target.value)}
+                        required
+                    />
                 </label>
                 <br/>
                 <label>
@@ -85,7 +90,9 @@ export const AddProduct = () => {
                     <input
                         type="text"
                         value={form.imgPath}
-                        onChange={e => updateForm('imgPath', e.target.value)}/>
+                        onChange={e => updateForm('imgPath', e.target.value)}
+                        required
+                    />
                 </label>
                 <br/>
                 <label>
@@ -93,7 +100,9 @@ export const AddProduct = () => {
                     <input
                         type="text"
                         value={form.description}
-                        onChange={e => updateForm('description', e.target.value)}/>
+                        onChange={e => updateForm('description', e.target.value)}
+                        required
+                    />
                 </label>
                 <br/>
                 <label>
@@ -102,7 +111,10 @@ export const AddProduct = () => {
                         type="number"
                         value={form.price}
                         min='0'
-                        onChange={e => updateForm('price', Number(e.target.value))}/>
+                        step="0.01"
+                        onChange={e => updateForm('price', Number(e.target.value))}
+                        required
+                    />
                 </label>
                 <br/>
                 <label>
@@ -120,6 +132,7 @@ export const AddProduct = () => {
                                     </option>
                                 ))
                         }
+                        required
                     </select>
                 </label>
                 <br/>
@@ -128,7 +141,9 @@ export const AddProduct = () => {
                     <input
                         type="text"
                         value={form.brand}
-                        onChange={e => updateForm('brand', e.target.value)}/>
+                        onChange={e => updateForm('brand', e.target.value)}
+                        required
+                    />
                 </label>
                 <br/>
                 <label>
@@ -136,7 +151,9 @@ export const AddProduct = () => {
                     <input
                         type="date"
                         value={form.dateAdded}
-                        onChange={e => updateForm('dateAdded', e.target.value)}/>
+                        onChange={e => updateForm('dateAdded', e.target.value)}
+                        required
+                    />
                 </label>
                 <br/>
                 <label>
@@ -145,10 +162,12 @@ export const AddProduct = () => {
                         type="number"
                         value={form.quantity}
                         min='0'
-                        onChange={e => updateForm('quantity', Number(e.target.value))}/>
+                        onChange={e => updateForm('quantity', Number(e.target.value))}
+                        required
+                    />
                 </label>
                 <br/>
-                <button type="submit">Dodaj produkt</button>
+                <AdminBtn text="Dodaj produkt"/>
             </form>
         </>
     )

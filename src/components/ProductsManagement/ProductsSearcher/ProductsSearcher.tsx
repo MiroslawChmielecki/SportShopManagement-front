@@ -1,5 +1,6 @@
 import React, {SyntheticEvent, useContext, useState} from 'react';
 import {SearchProductsContext} from "../../../context/search.context";
+import {AdminBtn} from "../../common/AdminBtn/AdminBtn";
 
 export const ProductsSearcher = () => {
     const {searchProducts, setSearchProducts} = useContext(SearchProductsContext)
@@ -20,7 +21,7 @@ export const ProductsSearcher = () => {
                         onChange={e => setInputValue(e.target.value)}
                     />
                 </label>
-                <button type='submit'>Wyświetl produkty</button>
+                <AdminBtn text="Wyświetl produkty"/>
             </form>
         </>
     )

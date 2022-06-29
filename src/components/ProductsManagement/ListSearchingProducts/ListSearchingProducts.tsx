@@ -3,20 +3,31 @@ import {SearchProductsContext} from "../../../context/search.context";
 import {ProductEntity} from "types";
 import {RemoveProduct} from "../RemoveProduct/RemoveProduct";
 import {AdminBtn} from "../../common/AdminBtn/AdminBtn";
+import {apiUrl} from "../../../config/api";
+import {Spinner} from "../../common/Spinner/Spinner";
 
 export const ListSearchingProducts = () => {
     const {searchProducts} = useContext(SearchProductsContext);
     const [products, setProducts] = useState<ProductEntity[]>([]);
-
+    const [loading, setLoading] = useState(false);
 
     const refreshSearchingProductsList = async () => {
-        const res = await fetch(`http://localhost:3001/product/search/${searchProducts}`);
-        const data = await res.json();
-        setProducts(data);
+        setLoading(true);
+
+        try {
+            const res = await fetch(`${apiUrl}/product/search/${searchProducts}`);
+            const data = await res.json();
+            setProducts(data);
+        } finally {
+            setLoading(false);
+        }
     }
-    useEffect( () => {
-       refreshSearchingProductsList()
+
+    useEffect(() => {
+        refreshSearchingProductsList()
     }, [searchProducts]);
+
+    if(loading) return <Spinner/>;
 
     return (
         <>
@@ -28,11 +39,11 @@ export const ListSearchingProducts = () => {
                             <p>{product.name}</p>
                             <RemoveProduct
                                 product={product}
-                                refreshList={refreshSearchingProductsList}
+                                refreshSearchingList={refreshSearchingProductsList}
                             />
                             <AdminBtn
-                                text="Edytuj produkt"
-                                to={`/product/edit/${product.id}`}
+                                text="Zarządzaj produktem"
+                                to={`/product/${product.id}`}
                             />
                         </li>
                     ))
