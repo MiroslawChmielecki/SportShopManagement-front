@@ -1,11 +1,11 @@
 import React, {FormEvent, useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 import {CreateProductEntity, ProductCategory, ProductEntity} from "types";
-import {AdminBtn} from "../../common/AdminBtn/AdminBtn";
-import {Spinner} from "../../common/Spinner/Spinner";
-import {apiUrl} from "../../../config/api";
-import {productEntityInitial, productEntityInitialWithId} from "../../../utils/productEntityInitial";
-import {ErrorShow} from "../../ErrorShow/ErrorShow";
+import {AdminBtn} from "../../../common/AdminBtn/AdminBtn";
+import {Spinner} from "../../../common/Spinner/Spinner";
+import {apiUrl} from "../../../../config/api";
+import {productEntityInitial, productEntityInitialWithId} from "../../../../utils/productEntityInitial";
+import {ErrorShow} from "../../../ErrorShow/ErrorShow";
 
 export const EditProduct = () => {
 
@@ -113,14 +113,6 @@ export const EditProduct = () => {
                                 </label>
                                 <br/>
                                 <label>
-                                    Photo: <br/>
-                                    <input
-                                        type="text"
-                                        value={form.imgPath}
-                                        onChange={e => updateForm('imgPath', e.target.value)}/>
-                                </label>
-                                <br/>
-                                <label>
                                     Opis: <br/>
                                     <input
                                         type="text"
@@ -153,6 +145,45 @@ export const EditProduct = () => {
                                                 ))
                                         }
                                     </select>
+                                </label>
+                                <br/>
+                                <label>
+                                    Rodzaj produktu <br/>
+                                    <select
+                                        value={form.productKind}
+                                        onChange={e => updateForm('productKind', e.target.value)}>
+                                        {
+                                            // (Object.keys(ProductCategory) as (keyof typeof ProductCategory)[]).map(
+                                            //     key => (
+                                            //         <option
+                                            //             key={key}
+                                            //             value={ProductCategory[key]}
+                                            //         >{ProductCategory[key]}
+                                            //         </option>
+                                            //     ))
+                                        }
+                                        required
+                                    </select>
+                                </label>
+                                <br/>
+                                <label>
+                                    Dobierz zdjęcie do produktu: <br/>
+                                    {/*<select*/}
+                                    {/*    value={form.image}*/}
+                                    {/*    onChange={e => updateForm('image', e.target.value)}*/}
+                                    {/*>*/}
+                                    {/*    {*/}
+                                    {/*        (Object.keys(Soccer) as (keyof typeof Soccer)[]).map(*/}
+                                    {/*            key => (*/}
+                                    {/*                <option*/}
+                                    {/*                    key={key}*/}
+                                    {/*                    value={Soccer[key]}*/}
+                                    {/*                >{Soccer[key]}*/}
+                                    {/*                </option>*/}
+                                    {/*            ))*/}
+                                    {/*    }*/}
+                                    {/*    required*/}
+                                    {/*</select>*/}
                                 </label>
                                 <br/>
                                 <label>
