@@ -24,6 +24,7 @@ import BadmintonShuttlecock1 from '../images/badmintonShuttlecocks/badmintonShut
 import BadmintonShuttlecock2 from '../images/badmintonShuttlecocks/badmintonShuttlecock2.png';
 import BadmintonShuttlecock3 from '../images/badmintonShuttlecocks/badmintonShuttlecock3.png';
 import BaseballStick1 from '../images/baseballSticks/baseballStick1.png';
+import BaseballStick2 from '../images/baseballSticks/baseballStick2.png';
 import BaseballBall1 from '../images/baseballBalls/baseballBall1.png';
 import BaseballBall2 from '../images/baseballBalls/baseballBall2.png';
 import BasketballBackboard1 from '../images/basketballBackboards/basketballBackBoard1.png';
@@ -55,11 +56,6 @@ import {v4 as uuid} from 'uuid';
 import { BadmintonRackets, BadmintonShuttlecocks, BaseballBalls, BaseballSticks, BasketballBackboards, BasketballBalls, HockeyHelmets, HockeySticks, RugbyBalls, RugbyShirts, SoccerBalls, SoccerGloves,
     SoccerSocks, SoccerTshirts, TennisBalls, TennisRackets,  } from 'types';
 
-// export interface objProductImage {
-//     id: string;
-//     img: HTMLImageElement;
-//     name: string;
-// }
 
 export const productImages = {
 
@@ -120,6 +116,11 @@ export const productImages = {
                 id: uuid(),
                 img: BaseballStick1,
                 name: BaseballSticks.BaseballStick1,
+            },
+            {
+                id: uuid(),
+                img: BaseballStick2,
+                name: BaseballSticks.BaseballStick2,
             },
         ],
     },
