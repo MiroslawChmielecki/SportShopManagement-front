@@ -1,4 +1,4 @@
-import React, {FormEvent, useEffect, useState} from "react";
+import React, {FormEvent, useContext, useEffect, useState} from "react";
 import {
     BadmintonProductKind,
     BaseballProductKind,
@@ -17,18 +17,20 @@ import {apiUrl} from "../../../../config/api";
 import {productEntityInitial} from "../../../../utils/productEntityInitial";
 import {ErrorShow} from "../../../ErrorShow/ErrorShow";
 import {SelectImage} from "../../SelectImage/SelectImage";
+import {ProductFormImageContext} from "../../../../context/productFormImage.context";
 
 
 export const AddProduct = () => {
 
     const [form, setForm] = useState<CreateProductEntity>(productEntityInitial);
     const [loading, setLoading] = useState<boolean>(false);
-    const [productCategoryField, setProductCategoryField] = useState<string | null>(null)
-    const [selectedProductKind, setSelectedProductKind] = useState<string | null>(null)
     const [productsKindField, setProductsKindField] = useState<string[] | null>(null);
     const [resultInfo, setResultInfo] = useState<string | null>(null);
     const [productId, setProductId] = useState<string>('');
     const [errorInfo, setErrorInfo] = useState<string | null>(null);
+    const {productFormImage} = useContext(ProductFormImageContext)
+
+
 
     const updateForm = (key: string, value: string | number) => {
         setForm(form => ({
@@ -38,9 +40,17 @@ export const AddProduct = () => {
         ))
     }
 
+   const updateProductCategory = (key: string, value: string | number) => {
+        setForm(form => ({
+                ...form,
+                [key]: value,
+            }
+            ))
+       form.productKind = '';
+    }
+
     useEffect(() => {
         (async () => {
-            setProductCategoryField(form.category);
 
             switch (form.category) {
                 case ProductCategory.badminton:
@@ -85,18 +95,21 @@ export const AddProduct = () => {
                     ))
                     break;
             }
-            setSelectedProductKind(form.productKind)
 
         })()
     }, [form.category, form.productKind]);
 
-    console.log({selectedProductKind})
+    useEffect(() => {
+        (async () => {
+           updateForm('image', productFormImage)
+        })()
+    },[productFormImage])
 
-    const sendForm = async (e: FormEvent) => {
+   const sendForm = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await fetch(`${apiUrl}/product`, {
+            const res = await fetch(`${apiUrl}/products`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -104,8 +117,13 @@ export const AddProduct = () => {
                 body: JSON.stringify(form as CreateProductEntity)
             });
 
+            console.log(res.status)
+
+
             if ([400 || 500 || 404].includes(res.status)) {
+                console.log(res.status)
                 const err = await res.json()
+                alert(`błąd ${err.message}`)
                 setErrorInfo(err.message);
                 return
             }
@@ -141,16 +159,6 @@ export const AddProduct = () => {
         return null;
     }
 
-    if (productCategoryField === null) {
-        return null
-    }
-
-    if (selectedProductKind === null) {
-        return null
-    }
-
-    console.log(selectedProductKind);
-
     return (
         <>
             {errorInfo !== null && <ErrorShow errorInfo={errorInfo}/>}
@@ -174,6 +182,7 @@ export const AddProduct = () => {
                         onChange={e => updateForm('description', e.target.value)}
                         required
                     />
+
                 </label>
                 <br/>
                 <label>
@@ -192,7 +201,8 @@ export const AddProduct = () => {
                     Dziedzina sportu: <br/>
                     <select
                         value={form.category}
-                        onChange={e => updateForm('category', e.target.value)}>
+                        onChange={e => updateProductCategory('category', e.target.value)}
+                    >
                         {
                             (Object.keys(ProductCategory) as (keyof typeof ProductCategory)[]).map(
                                 key => (
@@ -211,14 +221,16 @@ export const AddProduct = () => {
                     Rodzaj produktu <br/>
                     <select
                         value={form.productKind}
-                        onChange={e => updateForm('productKind', e.target.value)}>
+                        onChange={e => updateForm('productKind', e.target.value)}
+                    >
+                        <option value="" disabled>wybierz rodzaj produktu</option>
                         {
                             productsKindField.map(
-                                product => (
+                                productKind => (
                                     <option
-                                        key={product}
-                                        value={product}
-                                    >{product}
+                                        key={productKind}
+                                        value={productKind}
+                                    >{productKind}
                                     </option>
                                 )
                             )
@@ -228,10 +240,8 @@ export const AddProduct = () => {
                 </label>
                 <br/>
                 <label>
-                    Dobierz zdjęcie do produktu <br/>
                     <SelectImage
-                        productCategory={productCategoryField}
-                        productKind={selectedProductKind}
+                        productKind={form.productKind}
                     />
                 </label>
                 <br/>

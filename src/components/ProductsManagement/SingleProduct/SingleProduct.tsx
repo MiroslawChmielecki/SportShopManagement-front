@@ -6,7 +6,6 @@ import {AdminBtn} from "../../common/AdminBtn/AdminBtn";
 import {Spinner} from "../../common/Spinner/Spinner";
 import {ErrorShow} from "../../ErrorShow/ErrorShow";
 import {SearchProductsContext} from "../../../context/search.context";
-import SoccerSocks1 from '../../../images/soccerSocks/soccerSocks1.png';
 
 export const SingleProduct = () => {
     const {searchProducts, setSearchProducts} = useContext(SearchProductsContext);
@@ -23,8 +22,7 @@ export const SingleProduct = () => {
                 const res = await fetch(`${apiUrl}/product/${id}`);
                 const data: ProductEntity = await res.json();
                 setSingleProduct(data);
-            }
-            finally {
+            } finally {
                 setLoading(false)
             }
         })()
@@ -41,9 +39,10 @@ export const SingleProduct = () => {
         }
         setLoading(true);
         try {
-            await fetch(`${apiUrl}/product/${id}`, {
+           await fetch(`${apiUrl}/product/${id}`, {
                 method: 'DELETE',
             });
+
             setSearchProducts(searchProducts);
 
         } finally {
@@ -56,8 +55,6 @@ export const SingleProduct = () => {
     if (loading) return <Spinner/>
 
     if(isDeleted) return <Navigate to="/product"/>
-
-
 
     if (singleProduct === null) {
         return (
@@ -85,18 +82,18 @@ export const SingleProduct = () => {
                 <li>Nazwa: {singleProduct.name}</li>
                 <li>Opis: {singleProduct.description}</li>
                 <li>
-                    fotka: {singleProduct.image}
-                    <img src={SoccerSocks1} height={50} width={70} alt="skarpety"/>
+                    <img src={singleProduct.image} height={50} width={70} alt=""/>
                 </li>
                 <li>marka: {singleProduct.brand}</li>
-                <li>ilość: {singleProduct.quantity}</li>
+                <li>ilość: {singleProduct.quantity} sztuk</li>
                 <li>data dodania: {singleProduct.dateAdded}</li>
                 <li>kategoria: {singleProduct.category}</li>
                 <li>rodzaj produktu: {singleProduct.productKind}</li>
-                <li>cena: {singleProduct.price}</li>
+                <li>cena: {singleProduct.price} zł</li>
             </ul>
             <AdminBtn text="Usuń produkt" onClick={deleteProduct} to="/product"/>
             <AdminBtn text="Edytuj" to={`/product/edit/${id}`}/>
+            <AdminBtn text="Dodaj kolejny produkt" to={'/product/add'}/>
             <AdminBtn text="Lista produktów" to="/product"/>
         </>
     )

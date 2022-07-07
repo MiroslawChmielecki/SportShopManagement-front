@@ -39,9 +39,8 @@ export const EditProduct = () => {
     };
 
 
-    const updateProduct = async (e: FormEvent) => {
+    const sendForm = async (e: FormEvent) => {
         e.preventDefault();
-
         setLoading(true);
 
         try {
@@ -52,6 +51,8 @@ export const EditProduct = () => {
                 },
                 body: JSON.stringify(form as CreateProductEntity),
             });
+
+            console.log(res.status)
 
             if ([400 || 500 || 404].includes(res.status)) {
                 const err = await res.json()
@@ -103,7 +104,7 @@ export const EditProduct = () => {
                         <>
 
                             <p>Formularz edycji produktu {productNameBeforeUpdate}</p>
-                            <form onSubmit={updateProduct}>
+                            <form onSubmit={sendForm}>
                                 <label>
                                     Name: <br/>
                                     <input

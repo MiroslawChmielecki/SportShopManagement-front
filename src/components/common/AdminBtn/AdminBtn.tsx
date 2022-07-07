@@ -6,7 +6,8 @@ import './AdminBtn.css';
 interface Props {
     text: string;
     to?: string;
-    onClick?: (() => void)
+    onClick?:
+        (() => void)
         | ((e: SyntheticEvent) => Promise<void>)
         | ((e: SyntheticEvent) => Promise<null | undefined>);
     product?: ProductEntity;
