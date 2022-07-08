@@ -8,6 +8,7 @@ import {EditProduct} from "../../ProductsManagement/forms/EditProduct/EditProduc
 import {SingleProduct} from "../../ProductsManagement/SingleProduct/SingleProduct";
 import {StorePolicyView} from "../../../views/StorePolicyView/StorePolicyView";
 import {ContactView} from "../../../views/ContactView/ContactView";
+import {AdminLogin} from "../../ProductsManagement/forms/AdminLogin/AdminLogin";
 
 export const Main = () => {
     return (
@@ -16,6 +17,7 @@ export const Main = () => {
             <Route path="/shop" element={<ShopView/>}/>
             <Route path="/store-policy" element={<StorePolicyView/>}/>
             <Route path="/contact" element={<ContactView/>}/>
+            <Route path="/login" element={<AdminLogin/>}/>
             <Route path="/product" element={<AdminPanelView/>}/>
             <Route path="/product/:id" element={<SingleProduct/>}/>
             <Route path='/product/add' element={<AddProduct/>}/>

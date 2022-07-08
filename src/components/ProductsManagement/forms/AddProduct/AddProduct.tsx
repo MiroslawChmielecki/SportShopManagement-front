@@ -108,8 +108,9 @@ export const AddProduct = () => {
    const sendForm = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
+
         try {
-            const res = await fetch(`${apiUrl}/products`, {
+            const res = await fetch(`${apiUrl}/product`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
