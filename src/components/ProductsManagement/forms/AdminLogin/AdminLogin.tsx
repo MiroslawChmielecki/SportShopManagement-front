@@ -11,13 +11,13 @@ export const AdminLogin = () => {
     const [error, setError] = useState<string>('');
     const [loggedName, setLoggedName] = useState<string>('')
 
-    const sendForm = async (e: SyntheticEvent) => {
+    const sendLoginForm = async (e: SyntheticEvent) => {
         e.preventDefault();
         setLoading(true);
         setLoggedName('');
 
         try {
-            const res = await fetch(`${apiUrl}/login`, {
+            const res = await fetch(`${apiUrl}/admin/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ export const AdminLogin = () => {
     return (
         <>
             <h1>Login</h1>
-            <form onSubmit={sendForm}>
+            <form onSubmit={sendLoginForm}>
                 <label> Podaj login:
                     <input type="text" onChange={(e) => {
                         setLoginAdmin(e.target.value)
@@ -69,7 +69,7 @@ export const AdminLogin = () => {
                 loggedName && (
                     <>
                         <p>Zostałeś poprawnie zalogowany jako {loggedName}</p>
-                        <AdminBtn text="Przejdź do panelu administratora" to="/product"/>
+                        <AdminBtn text="Przejdź do panelu administratora" to="/admin/product"/>
                     </>
                 )
             }
