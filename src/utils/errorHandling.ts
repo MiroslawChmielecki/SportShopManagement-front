@@ -1,10 +1,8 @@
 
-export const errorHandling = async (res: Response) => {
-    //wpisujemy wszystkie kody ktore obslugujemy
+export const errorHandling = async (res: Response, setErrorInfo: any) => {
     if ([400 || 500 || 404].includes(res.status)) {
-        console.log({res})
         const err = await res.json();
-        alert(`błąd ${err.message}`)
+        setErrorInfo(err.message);
         return;
     }
 }

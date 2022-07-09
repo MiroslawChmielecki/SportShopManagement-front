@@ -9,21 +9,22 @@ import {SingleProduct} from "../../ProductsManagement/SingleProduct/SingleProduc
 import {StorePolicyView} from "../../../views/StorePolicyView/StorePolicyView";
 import {ContactView} from "../../../views/ContactView/ContactView";
 import {AdminLogin} from "../../ProductsManagement/forms/AdminLogin/AdminLogin";
+import {ClientRegisterLogin} from "../../Shop/forms/ClientRegisterLogin";
 
 export const Main = () => {
     return (
         <Routes>
             <Route path="/" element={<Navigate to="/shop"/>}/>
             <Route path="/shop" element={<ShopView/>}/>
+            <Route path="/shop/registerLogin" element={<ClientRegisterLogin/>}/>
+            <Route path="/admin/product" element={<AdminPanelView/>}/>
+            <Route path="/admin/product/:id" element={<SingleProduct/>}/>
+            <Route path='/admin/product/add' element={<AddProduct/>}/>
+            <Route path='/admin/product/edit/:id' element={<EditProduct/>}/>
+            <Route path="/admin/login" element={<AdminLogin/>}/>
             <Route path="/store-policy" element={<StorePolicyView/>}/>
             <Route path="/contact" element={<ContactView/>}/>
-            <Route path="/login" element={<AdminLogin/>}/>
-            <Route path="/product" element={<AdminPanelView/>}/>
-            <Route path="/product/:id" element={<SingleProduct/>}/>
-            <Route path='/product/add' element={<AddProduct/>}/>
-            <Route path='/product/edit/:id' element={<EditProduct/>}/>
             <Route path="*" element={<NotFoundView/>}/>
         </Routes>
-
     )
 }

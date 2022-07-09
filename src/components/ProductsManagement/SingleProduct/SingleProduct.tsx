@@ -8,8 +8,8 @@ import {ErrorShow} from "../../ErrorShow/ErrorShow";
 import {SearchProductsContext} from "../../../context/search.context";
 
 export const SingleProduct = () => {
-    const {searchProducts, setSearchProducts} = useContext(SearchProductsContext);
     const {id} = useParams()
+    const {searchProducts, setSearchProducts} = useContext(SearchProductsContext);
     const [loading, setLoading] = useState(false);
     const [singleProduct, setSingleProduct] = useState<ProductEntity | null>(null);
     const [isDeleted, setIsDeleted] = useState<boolean>(false);
@@ -19,7 +19,7 @@ export const SingleProduct = () => {
         (async () => {
             try{
                 setLoading(true);
-                const res = await fetch(`${apiUrl}/product/${id}`);
+                const res = await fetch(`${apiUrl}/admin/product/${id}`);
                 const data: ProductEntity = await res.json();
                 setSingleProduct(data);
             } finally {
@@ -39,7 +39,7 @@ export const SingleProduct = () => {
         }
         setLoading(true);
         try {
-           await fetch(`${apiUrl}/product/${id}`, {
+           await fetch(`${apiUrl}/admin/product/${id}`, {
                 method: 'DELETE',
             });
 
@@ -54,13 +54,13 @@ export const SingleProduct = () => {
 
     if (loading) return <Spinner/>
 
-    if(isDeleted) return <Navigate to="/product"/>
+    if(isDeleted) return <Navigate to="/admin/product"/>
 
     if (singleProduct === null) {
         return (
             <>
                 <ErrorShow text="Błąd wczytywania produktu"/>
-                <AdminBtn text="Lista produktów" to="/product"/>
+                <AdminBtn text="Lista produktów" to="/admin/product"/>
             </>
         )
     }
@@ -70,7 +70,7 @@ export const SingleProduct = () => {
         return (
             <>
                 <ErrorShow text="Nieprawidłowy identyfikator produktu w adresie Url"/>
-                <AdminBtn text="Lista produktów" to="/product"/>
+                <AdminBtn text="Lista produktów" to="/admin/product"/>
             </>
         )
     }
@@ -91,10 +91,10 @@ export const SingleProduct = () => {
                 <li>rodzaj produktu: {singleProduct.productKind}</li>
                 <li>cena: {singleProduct.price} zł</li>
             </ul>
-            <AdminBtn text="Usuń produkt" onClick={deleteProduct} to="/product"/>
-            <AdminBtn text="Edytuj" to={`/product/edit/${id}`}/>
-            <AdminBtn text="Dodaj kolejny produkt" to={'/product/add'}/>
-            <AdminBtn text="Lista produktów" to="/product"/>
+            <AdminBtn text="Usuń produkt" onClick={deleteProduct} to="/admin/product"/>
+            <AdminBtn text="Edytuj" to={`/admin/product/edit/${id}`}/>
+            <AdminBtn text="Dodaj kolejny produkt" to={'/admin/product/add'}/>
+            <AdminBtn text="Lista produktów" to="/admin/product"/>
         </>
     )
 }

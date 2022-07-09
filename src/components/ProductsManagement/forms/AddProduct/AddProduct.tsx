@@ -1,36 +1,31 @@
-import React, {FormEvent, useContext, useEffect, useState} from "react";
-import {
-    BadmintonProductKind,
-    BaseballProductKind,
-    BasketballProductKind,
-    CreateProductEntity,
-    HockeyProductKind,
-    ProductCategory,
-    RugbyProductKind,
-    SoccerProductKind,
-    TennisProductKind
-} from 'types';
+import React, {FormEvent, useEffect, useState} from "react";
+import {CreateProductEntity, ProductCategory} from 'types';
 import {Spinner} from "../../../common/Spinner/Spinner";
 import {ProductEntity} from "types";
 import {AdminBtn} from "../../../common/AdminBtn/AdminBtn";
 import {apiUrl} from "../../../../config/api";
 import {productEntityInitial} from "../../../../utils/productEntityInitial";
 import {ErrorShow} from "../../../ErrorShow/ErrorShow";
-import {SelectImage} from "../../SelectImage/SelectImage";
-import {ProductFormImageContext} from "../../../../context/productFormImage.context";
+
+//selectImage
+import {ProductImageObj} from 'types';
+import './AddProduct.css';
+import {selectKindProductsDependingOnCategory} from "../../../../utils/selectKindProductsDependingOnCategory";
+import {selectImgDependOnKindProduct} from "../../../../utils/selectImgDependOnKindProduct";
+
 
 
 export const AddProduct = () => {
-
     const [form, setForm] = useState<CreateProductEntity>(productEntityInitial);
     const [loading, setLoading] = useState<boolean>(false);
-    const [productsKindField, setProductsKindField] = useState<string[] | null>(null);
-    const [resultInfo, setResultInfo] = useState<string | null>(null);
+    const [productsKindField, setProductsKindField] = useState<string[] | []>([]);
+    const [resultInfo, setResultInfo] = useState<string>('');
     const [productId, setProductId] = useState<string>('');
-    const [errorInfo, setErrorInfo] = useState<string | null>(null);
-    const {productFormImage} = useContext(ProductFormImageContext)
+    const [errorInfo, setErrorInfo] = useState<string>('');
 
-
+    //selectImage
+    const [imagesToDisplay, setImagesToDisplay] = useState<ProductImageObj[] | null>(null);
+    const [curObj, setCurObj] = useState<ProductImageObj | null>(null);
 
     const updateForm = (key: string, value: string | number) => {
         setForm(form => ({
@@ -40,77 +35,37 @@ export const AddProduct = () => {
         ))
     }
 
-   const updateProductCategory = (key: string, value: string | number) => {
+    const updateFormProductAndKindCategory = (key: string, value: string | number) => {
         setForm(form => ({
                 ...form,
                 [key]: value,
             }
-            ))
-       form.productKind = '';
+        ))
+        form.productKind = '';
+        form.image = '';
     }
 
     useEffect(() => {
         (async () => {
 
-            switch (form.category) {
-                case ProductCategory.badminton:
-                    setProductsKindField((Object.keys(BadmintonProductKind) as (keyof typeof BadmintonProductKind)[]).map(
-                        product => BadmintonProductKind[product]
-                    ))
-                    break;
+            // wybieramy rodzaj produktów w zależności od kategorii
+            setImagesToDisplay(null);
+            selectKindProductsDependingOnCategory(form.category, setProductsKindField);
 
-                case ProductCategory.baseball:
-                    setProductsKindField((Object.keys(BaseballProductKind) as (keyof typeof BaseballProductKind)[]).map(
-                        product => BaseballProductKind[product]
-                    ))
-                    break;
 
-                case ProductCategory.basketball:
-                    setProductsKindField((Object.keys(BasketballProductKind) as (keyof typeof BasketballProductKind)[]).map(
-                        product => BasketballProductKind[product]
-                    ))
-                    break;
-
-                case ProductCategory.hockey:
-                    setProductsKindField((Object.keys(HockeyProductKind) as (keyof typeof HockeyProductKind)[]).map(
-                        product => HockeyProductKind[product]
-                    ))
-                    break;
-
-                case ProductCategory.rugby:
-                    setProductsKindField((Object.keys(RugbyProductKind) as (keyof typeof RugbyProductKind)[]).map(
-                        product => RugbyProductKind[product]
-                    ))
-                    break;
-
-                case ProductCategory.soccer:
-                    setProductsKindField((Object.keys(SoccerProductKind) as (keyof typeof SoccerProductKind)[]).map(
-                        product => SoccerProductKind[product]
-                    ))
-                    break;
-
-                case ProductCategory.tennis:
-                    setProductsKindField((Object.keys(TennisProductKind) as (keyof typeof TennisProductKind)[]).map(
-                        product => TennisProductKind[product]
-                    ))
-                    break;
+            //wybieramy zdjęcia do wyświetlenia w zależności od rodzaju produktu
+            if (form.productKind) {
+                selectImgDependOnKindProduct(form.productKind, setImagesToDisplay)
             }
-
         })()
     }, [form.category, form.productKind]);
 
-    useEffect(() => {
-        (async () => {
-           updateForm('image', productFormImage)
-        })()
-    },[productFormImage])
-
-   const sendForm = async (e: FormEvent) => {
+    const sendForm = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            const res = await fetch(`${apiUrl}/product`, {
+            const res = await fetch(`${apiUrl}/admin/product`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -118,22 +73,17 @@ export const AddProduct = () => {
                 body: JSON.stringify(form as CreateProductEntity)
             });
 
-            console.log(res.status)
-
 
             if ([400 || 500 || 404].includes(res.status)) {
-                console.log(res.status)
                 const err = await res.json()
-                alert(`błąd ${err.message}`)
                 setErrorInfo(err.message);
                 return
             }
-            setErrorInfo(null);
+            setErrorInfo('');
 
             const data: ProductEntity = await res.json();
             setProductId(data.id);
 
-            //czyscimy pola w formularzu
             setForm(form => productEntityInitial);
             setResultInfo(`produkt ${data.name} dodany do sklepu`);
         } finally {
@@ -145,24 +95,20 @@ export const AddProduct = () => {
         return <Spinner/>
     }
 
-    if (resultInfo !== null) {
+    if (resultInfo) {
         return (
             <>
                 <p>{resultInfo}</p>
-                <AdminBtn text="Dodaj kolejny produkt" onClick={() => setResultInfo(null)}/>
-                <AdminBtn text="Lista szukanych produktów" to="/product"/>
-                <AdminBtn text="Pokaż produkt" to={`/product/${productId}`}/>
+                <AdminBtn text="Dodaj kolejny produkt" onClick={() => setResultInfo('')}/>
+                <AdminBtn text="Lista szukanych produktów" to="/admin/product"/>
+                <AdminBtn text="Pokaż produkt" to={`/admin/product/${productId}`}/>
             </>
         )
     }
 
-    if (productsKindField === null) {
-        return null;
-    }
-
     return (
         <>
-            {errorInfo !== null && <ErrorShow errorInfo={errorInfo}/>}
+            {errorInfo && <ErrorShow text={errorInfo}/>}
             <h2>Formularz dodawania</h2>
             <form onSubmit={sendForm}>
                 <label>
@@ -202,7 +148,7 @@ export const AddProduct = () => {
                     Dziedzina sportu: <br/>
                     <select
                         value={form.category}
-                        onChange={e => updateProductCategory('category', e.target.value)}
+                        onChange={e => updateFormProductAndKindCategory('category', e.target.value)}
                     >
                         {
                             (Object.keys(ProductCategory) as (keyof typeof ProductCategory)[]).map(
@@ -221,10 +167,11 @@ export const AddProduct = () => {
                 <label>
                     Rodzaj produktu <br/>
                     <select
+                        required
                         value={form.productKind}
-                        onChange={e => updateForm('productKind', e.target.value)}
+                        onChange={e => updateFormProductAndKindCategory('productKind', e.target.value)}
                     >
-                        <option value="" disabled>wybierz rodzaj produktu</option>
+                        <option hidden value="" disabled>wybierz rodzaj produktu</option>
                         {
                             productsKindField.map(
                                 productKind => (
@@ -241,9 +188,28 @@ export const AddProduct = () => {
                 </label>
                 <br/>
                 <label>
-                    <SelectImage
-                        productKind={form.productKind}
-                    />
+                    {imagesToDisplay ? <p>Wybierz zdjęcie do produktu z kategorii: {form.productKind}</p> : null}
+                    <ul style={{margin: '20px auto'}}>
+                        {
+                            imagesToDisplay ? (
+                                imagesToDisplay.map((oneImg) => (
+                                    <li
+                                        className={oneImg === curObj ? "active" : ""}
+                                        key={oneImg.id}
+                                    >
+                                        <p>{oneImg.name}</p>
+                                        <img src={oneImg.img} width={50} height={40}/>
+                                        <AdminBtn
+                                            text="Wybierz"
+                                            onClick={() => {
+                                                setCurObj(oneImg);
+                                                updateForm('image', oneImg.img)
+                                            }}/>
+                                    </li>
+                                ))
+                            ) : null
+                        }
+                    </ul>
                 </label>
                 <br/>
                 <label>

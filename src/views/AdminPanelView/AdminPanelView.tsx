@@ -7,7 +7,8 @@ export const AdminPanelView = () => (
     <>
         <ProductsSearcher/>
         <ListSearchingProducts/>
-        <p>---------------------------------------</p>
-        <AdminBtn text="Dodaj nowy produkt" to="/product/add"/>
+        <br/>
+        <br/>
+        <AdminBtn text="Dodaj nowy produkt" to="/admin/product/add"/>
     </>
 )

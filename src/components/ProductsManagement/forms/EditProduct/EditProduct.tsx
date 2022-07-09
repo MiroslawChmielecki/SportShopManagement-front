@@ -8,19 +8,18 @@ import {productEntityInitial, productEntityInitialWithId} from "../../../../util
 import {ErrorShow} from "../../../ErrorShow/ErrorShow";
 
 export const EditProduct = () => {
-
-    const {id} = useParams();
+    const [form, setForm] = useState<CreateProductEntity>(productEntityInitial);
     const [loading, setLoading] = useState(false);
     const [productEdited, setProductEdited] = useState<ProductEntity>(productEntityInitialWithId)
     const [productNameBeforeUpdate, setProductNameBeforeUpdate] = useState<string>('');
     const [errorInfo, setErrorInfo] = useState<string | null>(null);
-    const [form, setForm] = useState<CreateProductEntity>(productEntityInitial);
+    const {id} = useParams();
 
     useEffect(() => {
         (async () => {
             try {
                 setLoading(true);
-                const res = await fetch(`${apiUrl}/product/${id}`);
+                const res = await fetch(`${apiUrl}/admin/product/${id}`);
                 const data: CreateProductEntity = await res.json();
                 setForm(data);
                 setProductNameBeforeUpdate(data.name)
@@ -44,7 +43,7 @@ export const EditProduct = () => {
         setLoading(true);
 
         try {
-            const res = await fetch(`${apiUrl}/product/${id}`, {
+            const res = await fetch(`${apiUrl}/admin/product/${id}`, {
                 method: "PUT",
                 headers: {
                     'Content-Type': 'application/json',
@@ -81,8 +80,8 @@ export const EditProduct = () => {
         return (
             <>
                 <p>Produkt {productEdited.name} został zaktualizowany</p>
-                <AdminBtn text="Pokaż aktualny produkt" to={`/product/${productEdited.id}`}/>
-                <AdminBtn text="Lista produktów" to="/product"/>
+                <AdminBtn text="Pokaż aktualny produkt" to={`/admin/product/${productEdited.id}`}/>
+                <AdminBtn text="Lista produktów" to="/admin/product"/>
             </>
         )
     }
@@ -97,7 +96,7 @@ export const EditProduct = () => {
                     ? (
                         <>
                             <ErrorShow text="Nieprawidłowy identyfikator produktu w adresie Url"/>
-                            <AdminBtn text="Lista produktów" to="/product"/>
+                            <AdminBtn text="Lista produktów" to="/admin/product"/>
                         </>
                     )
                     : (

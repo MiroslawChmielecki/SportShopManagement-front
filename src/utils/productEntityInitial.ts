@@ -14,13 +14,5 @@ export const productEntityInitial: CreateProductEntity = {
 
 export const productEntityInitialWithId = {
     id: '',
-    name: '',
-    description: '',
-    price: 0,
-    category: ProductCategory.soccer,
-    productKind: '',
-    image: '',
-    brand: '',
-    dateAdded: '',
-    quantity: 0,
+   ...productEntityInitial
 }

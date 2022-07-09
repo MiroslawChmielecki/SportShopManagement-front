@@ -14,7 +14,7 @@ export const ListSearchingProducts = () => {
         (async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${apiUrl}/product/search/${searchProducts}`);
+                const res = await fetch(`${apiUrl}/admin/product/search/${searchProducts}`);
                 const data = await res.json();
                 setProducts(data);
             } finally {
@@ -34,12 +34,11 @@ export const ListSearchingProducts = () => {
                         <li key={product.id}>
                             <p>{product.name}</p>
                             <p>
-                                Zdjęcie produktu:
-
+                                <img src={product.image} width={70} height={50} alt={product.name}/>
                             </p>
                             <AdminBtn
                                 text="Zarządzaj produktem"
-                                to={`/product/${product.id}`}
+                                to={`/admin/product/${product.id}`}
                             />
                         </li>
                     ))
