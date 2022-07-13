@@ -1,8 +1,10 @@
 import React, {SyntheticEvent, useState} from "react";
-import {apiUrl} from "../../../../config/api";
+import { AdminLoginEntity } from "types";
 import {Spinner} from "../../../common/Spinner/Spinner";
-import {ErrorShow} from "../../../ErrorShow/ErrorShow";
 import {AdminBtn} from "../../../common/AdminBtn/AdminBtn";
+import {fetchApi} from "../../../../utils/fetchApi";
+import {errorHandling} from "../../../../utils/errorHandling";
+import {ErrorShow} from "../../../ErrorShow/ErrorShow";
 
 export const AdminLogin = () => {
     const [adminName, setLoginAdmin] = useState<string>('')
@@ -17,24 +19,17 @@ export const AdminLogin = () => {
         setLoggedName('');
 
         try {
-            const res = await fetch(`${apiUrl}/admin/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    adminName,
-                    adminPassword,
-                })
-            });
+            setLoading(true);
 
-            if ([400 || 500 || 404].includes(res.status)) {
-                const err = await res.json();
-                setError(err.message);
-                return
-            }
+            const res = await fetchApi(
+                'admin/login',
+                'POST',
+                {adminName, adminPassword} as AdminLoginEntity
+            );
+
+            errorHandling(res, setError);
+
             setError('');
-
             const data: string = await res.json();
             setLoggedName(data)
 
@@ -43,9 +38,8 @@ export const AdminLogin = () => {
         }
     };
 
-    if (loading) {
-        return <Spinner/>
-    }
+    if (loading) return <Spinner/>;
+
 
     return (
         <>
@@ -68,7 +62,7 @@ export const AdminLogin = () => {
             {
                 loggedName && (
                     <>
-                        <p>Zostałeś poprawnie zalogowany jako {loggedName}</p>
+                        <h2>Zostałeś poprawnie zalogowany jako {loggedName}</h2>
                         <AdminBtn text="Przejdź do panelu administratora" to="/admin/product"/>
                     </>
                 )

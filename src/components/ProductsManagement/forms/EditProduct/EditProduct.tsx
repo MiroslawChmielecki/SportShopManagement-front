@@ -1,25 +1,45 @@
 import React, {FormEvent, useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
-import {CreateProductEntity, ProductCategory, ProductEntity} from "types";
-import {AdminBtn} from "../../../common/AdminBtn/AdminBtn";
-import {Spinner} from "../../../common/Spinner/Spinner";
+import {CreateProductEntity, ProductEntity, ProductImageObj} from "types";
 import {apiUrl} from "../../../../config/api";
 import {productEntityInitial, productEntityInitialWithId} from "../../../../utils/productEntityInitial";
+import {fetchApi} from "../../../../utils/fetchApi";
+import {errorHandling} from "../../../../utils/errorHandling";
+import {selectKindProductsDependingOnCategory} from "../../../../utils/selectKindProductsDependingOnCategory";
+import {selectImgObjDependOnKindProduct} from "../../../../utils/selectImgObjDependOnKindProduct";
+import {AdminBtn} from "../../../common/AdminBtn/AdminBtn";
+import {Spinner} from "../../../common/Spinner/Spinner";
 import {ErrorShow} from "../../../ErrorShow/ErrorShow";
+import {AddAndEditProductForm} from "../AddAndEditProductForm/AddAndEditProductForm";
 
 export const EditProduct = () => {
     const [form, setForm] = useState<CreateProductEntity>(productEntityInitial);
     const [loading, setLoading] = useState(false);
+    const [productsKindField, setProductsKindField] = useState<string[] | []>([]);
+    const [errorInfo, setErrorInfo] = useState<string>('');
+    const [imagesToDisplay, setImagesToDisplay] = useState<ProductImageObj[] | null>(null);
+    const [curObj, setCurObj] = useState<ProductImageObj | null>(null);
     const [productEdited, setProductEdited] = useState<ProductEntity>(productEntityInitialWithId)
     const [productNameBeforeUpdate, setProductNameBeforeUpdate] = useState<string>('');
-    const [errorInfo, setErrorInfo] = useState<string | null>(null);
     const {id} = useParams();
+
+    useEffect(() => {
+        (async () => {
+            setImagesToDisplay(null);
+            selectKindProductsDependingOnCategory(form.category, setProductsKindField);
+
+            if (form.productKind) {
+                selectImgObjDependOnKindProduct(form.productKind, setImagesToDisplay)
+            }
+        })()
+    }, [form.category, form.productKind]);
 
     useEffect(() => {
         (async () => {
             try {
                 setLoading(true);
                 const res = await fetch(`${apiUrl}/admin/product/${id}`);
+                await errorHandling(res, setErrorInfo);
                 const data: CreateProductEntity = await res.json();
                 setForm(data);
                 setProductNameBeforeUpdate(data.name)
@@ -30,47 +50,21 @@ export const EditProduct = () => {
         })()
     }, [id]);
 
-    const updateForm = (key: string, value: string | number) => {
-        setForm(form => ({
-            ...form,
-            [key]: value,
-        }))
-    };
-
-
     const sendForm = async (e: FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            const res = await fetch(`${apiUrl}/admin/product/${id}`, {
-                method: "PUT",
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(form as CreateProductEntity),
-            });
-
-            console.log(res.status)
-
-            if ([400 || 500 || 404].includes(res.status)) {
-                const err = await res.json()
-                setErrorInfo(err.message);
-                return
-            }
-
-            setErrorInfo(null);
-
+            setLoading(true);
+            const res = await fetchApi(`admin/product/${id}`, 'PUT', form as CreateProductEntity);
+            await errorHandling(res, setErrorInfo);
+            setErrorInfo('');
             const data: ProductEntity = await res.json();
-
             setProductEdited(data)
-
-
         } finally {
             setLoading(false);
         }
     };
-
 
     if (loading) {
         return <Spinner/>
@@ -86,11 +80,10 @@ export const EditProduct = () => {
         )
     }
 
-    console.log({productNameBeforeUpdate});
-
     return (
         <>
-            {errorInfo !== null && <ErrorShow errorInfo={errorInfo}/>}
+            {errorInfo && <ErrorShow text={errorInfo}/>}
+            <h2>Formularz edycji produktu</h2>
             {
                 !productNameBeforeUpdate
                     ? (
@@ -99,124 +92,17 @@ export const EditProduct = () => {
                             <AdminBtn text="Lista produktów" to="/admin/product"/>
                         </>
                     )
-                    : (
-                        <>
-
-                            <p>Formularz edycji produktu {productNameBeforeUpdate}</p>
-                            <form onSubmit={sendForm}>
-                                <label>
-                                    Name: <br/>
-                                    <input
-                                        type="text"
-                                        value={form.name}
-                                        onChange={e => updateForm('name', e.target.value)}/>
-                                </label>
-                                <br/>
-                                <label>
-                                    Opis: <br/>
-                                    <input
-                                        type="text"
-                                        value={form.description}
-                                        onChange={e => updateForm('description', e.target.value)}/>
-                                </label>
-                                <br/>
-                                <label>
-                                    Cena: <br/>
-                                    <input
-                                        type="number"
-                                        value={form.price}
-                                        min='0'
-                                        onChange={e => updateForm('price', Number(e.target.value))}/>
-                                </label>
-                                <br/>
-                                <label>
-                                    Dziedzina sportu: <br/>
-                                    <select
-                                        value={form.category}
-                                        onChange={e => updateForm('category', e.target.value)}>
-                                        {
-                                            (Object.keys(ProductCategory) as (keyof typeof ProductCategory)[]).map(
-                                                key => (
-                                                    <option
-                                                        key={key}
-                                                        value={ProductCategory[key]}
-                                                    >{ProductCategory[key]}
-                                                    </option>
-                                                ))
-                                        }
-                                    </select>
-                                </label>
-                                <br/>
-                                <label>
-                                    Rodzaj produktu <br/>
-                                    <select
-                                        value={form.productKind}
-                                        onChange={e => updateForm('productKind', e.target.value)}>
-                                        {
-                                            // (Object.keys(ProductCategory) as (keyof typeof ProductCategory)[]).map(
-                                            //     key => (
-                                            //         <option
-                                            //             key={key}
-                                            //             value={ProductCategory[key]}
-                                            //         >{ProductCategory[key]}
-                                            //         </option>
-                                            //     ))
-                                        }
-                                        required
-                                    </select>
-                                </label>
-                                <br/>
-                                <label>
-                                    Dobierz zdjęcie do produktu: <br/>
-                                    {/*<select*/}
-                                    {/*    value={form.image}*/}
-                                    {/*    onChange={e => updateForm('image', e.target.value)}*/}
-                                    {/*>*/}
-                                    {/*    {*/}
-                                    {/*        (Object.keys(Soccer) as (keyof typeof Soccer)[]).map(*/}
-                                    {/*            key => (*/}
-                                    {/*                <option*/}
-                                    {/*                    key={key}*/}
-                                    {/*                    value={Soccer[key]}*/}
-                                    {/*                >{Soccer[key]}*/}
-                                    {/*                </option>*/}
-                                    {/*            ))*/}
-                                    {/*    }*/}
-                                    {/*    required*/}
-                                    {/*</select>*/}
-                                </label>
-                                <br/>
-                                <label>
-                                    Marka: <br/>
-                                    <input
-                                        type="text"
-                                        value={form.brand}
-                                        onChange={e => updateForm('brand', e.target.value)}/>
-                                </label>
-                                <br/>
-                                <label>
-                                    Data dodania: <br/>
-                                    <input
-                                        type="date"
-                                        value={form.dateAdded}
-                                        onChange={e => updateForm('dateAdded', e.target.value)}/>
-                                </label>
-                                <br/>
-                                <label>
-                                    Ilość: <br/>
-                                    <input
-                                        type="number"
-                                        value={form.quantity}
-                                        min='0'
-                                        onChange={e => updateForm('quantity', Number(e.target.value))}/>
-                                </label>
-                                <br/>
-                                <AdminBtn text="Edytuj produkt"/>
-                            </form>
-                        </>
-                    )
+                    : <AddAndEditProductForm
+                        sendForm={sendForm}
+                        form={form}
+                        setForm={setForm}
+                        imagesToDisplay={imagesToDisplay}
+                        productsKindField={productsKindField}
+                        curObj={curObj}
+                        setCurObj={setCurObj}
+                        textBtn="Edytuj produkt"
+                    />
             }
-
         </>
     )
 }

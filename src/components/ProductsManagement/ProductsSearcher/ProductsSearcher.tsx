@@ -14,7 +14,7 @@ export const ProductsSearcher = () => {
     return (
         <>
             <form onSubmit={setProductsSearchFromLocalState}>
-                <label> Wyszukaj produkty:
+                <label> Wyszukaj produkty po nazwie:
                     <input
                         type="text"
                         value={inputValue}

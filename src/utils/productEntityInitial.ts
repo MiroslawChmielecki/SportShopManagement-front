@@ -14,5 +14,5 @@ export const productEntityInitial: CreateProductEntity = {
 
 export const productEntityInitialWithId = {
     id: '',
-   ...productEntityInitial
+   ...productEntityInitial,
 }

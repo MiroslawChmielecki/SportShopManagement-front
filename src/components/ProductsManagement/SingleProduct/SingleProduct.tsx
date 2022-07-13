@@ -6,6 +6,7 @@ import {AdminBtn} from "../../common/AdminBtn/AdminBtn";
 import {Spinner} from "../../common/Spinner/Spinner";
 import {ErrorShow} from "../../ErrorShow/ErrorShow";
 import {SearchProductsContext} from "../../../context/search.context";
+import {errorHandling} from "../../../utils/errorHandling";
 
 export const SingleProduct = () => {
     const {id} = useParams()
@@ -13,6 +14,7 @@ export const SingleProduct = () => {
     const [loading, setLoading] = useState(false);
     const [singleProduct, setSingleProduct] = useState<ProductEntity | null>(null);
     const [isDeleted, setIsDeleted] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
 
 
     useEffect(() => {
@@ -20,6 +22,8 @@ export const SingleProduct = () => {
             try{
                 setLoading(true);
                 const res = await fetch(`${apiUrl}/admin/product/${id}`);
+                errorHandling(res, setError);
+                setError('')
                 const data: ProductEntity = await res.json();
                 setSingleProduct(data);
             } finally {
@@ -31,17 +35,23 @@ export const SingleProduct = () => {
 
     const deleteProduct = async (e: SyntheticEvent) => {
         e.preventDefault();
+
         if(singleProduct === null) {
             return null
         }
-        if (!window.confirm(`Are you sure you want to remove ${singleProduct.name}`)) {
+        if (!window.confirm(`Czy na pewno chcesz usunąć ${singleProduct.name} ??`)) {
             return;
         }
         setLoading(true);
+
         try {
-           await fetch(`${apiUrl}/admin/product/${id}`, {
+           const res = await fetch(`${apiUrl}/admin/product/${id}`, {
                 method: 'DELETE',
             });
+
+           errorHandling(res, setError);
+
+           setError('');
 
             setSearchProducts(searchProducts);
 
@@ -56,15 +66,7 @@ export const SingleProduct = () => {
 
     if(isDeleted) return <Navigate to="/admin/product"/>
 
-    if (singleProduct === null) {
-        return (
-            <>
-                <ErrorShow text="Błąd wczytywania produktu"/>
-                <AdminBtn text="Lista produktów" to="/admin/product"/>
-            </>
-        )
-    }
-
+    if(!singleProduct) return null;
 
     if (singleProduct.id !== id) {
         return (
@@ -78,19 +80,20 @@ export const SingleProduct = () => {
     return (
         <>
             <h2>Szczegóły produktu</h2>
-            <ul>
-                <li>Nazwa: {singleProduct.name}</li>
-                <li>Opis: {singleProduct.description}</li>
-                <li>
-                    <img src={singleProduct.image} height={50} width={70} alt=""/>
-                </li>
-                <li>marka: {singleProduct.brand}</li>
-                <li>ilość: {singleProduct.quantity} sztuk</li>
-                <li>data dodania: {singleProduct.dateAdded}</li>
-                <li>kategoria: {singleProduct.category}</li>
-                <li>rodzaj produktu: {singleProduct.productKind}</li>
-                <li>cena: {singleProduct.price} zł</li>
-            </ul>
+            {error && <ErrorShow text={error}/>}
+            <div>
+                <p>{singleProduct.name}</p>
+                <p>
+                    <img src={singleProduct.image} width={70} height={50} alt={singleProduct.name}/>
+                </p>
+                <p>Cena: {singleProduct.price} zł</p>
+                <p>Data dodania: {singleProduct.dateAdded}</p>
+                <p>Marka: {singleProduct.brand}</p>
+                <p>Ilość sztuk w magazynie: {singleProduct.quantity}</p>
+                <p>Opis: {singleProduct.description}</p>
+                <p>Kategoria produktu: {singleProduct.category}</p>
+                <p>Rodzaj produktu: {singleProduct.productKind}</p>
+            </div>
             <AdminBtn text="Usuń produkt" onClick={deleteProduct} to="/admin/product"/>
             <AdminBtn text="Edytuj" to={`/admin/product/edit/${id}`}/>
             <AdminBtn text="Dodaj kolejny produkt" to={'/admin/product/add'}/>

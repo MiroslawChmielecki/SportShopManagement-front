@@ -8,25 +8,27 @@ import {
     SoccerProductKind,
     TennisProductKind
 } from "types";
+import {Dispatch, SetStateAction} from "react";
 
 
-export const selectKindProductsDependingOnCategory = (category: string, setKinds: any) => {
-
+export const selectKindProductsDependingOnCategory = (
+    category: string,
+    setKinds: Dispatch<SetStateAction<string[]>>) => {
     switch (category) {
         case ProductCategory.badminton:
-         setKinds((Object.keys(BadmintonProductKind) as (keyof typeof BadmintonProductKind)[]).map(
+            setKinds((Object.keys(BadmintonProductKind) as (keyof typeof BadmintonProductKind)[]).map(
                 product => BadmintonProductKind[product]
             ))
             break;
 
         case ProductCategory.baseball:
-           setKinds((Object.keys(BaseballProductKind) as (keyof typeof BaseballProductKind)[]).map(
+            setKinds((Object.keys(BaseballProductKind) as (keyof typeof BaseballProductKind)[]).map(
                 product => BaseballProductKind[product]
             ))
             break;
 
         case ProductCategory.basketball:
-             setKinds((Object.keys(BasketballProductKind) as (keyof typeof BasketballProductKind)[]).map(
+            setKinds((Object.keys(BasketballProductKind) as (keyof typeof BasketballProductKind)[]).map(
                 product => BasketballProductKind[product]
             ))
             break;

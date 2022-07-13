@@ -1,9 +1,10 @@
 import React, {SyntheticEvent, useState} from 'react';
-import {apiUrl} from "../../../config/api";
+import { UserLoginEntity, UserRegisterEntity } from 'types';
 import {Spinner} from "../../common/Spinner/Spinner";
 import {ErrorShow} from "../../ErrorShow/ErrorShow";
 import {AdminBtn} from "../../common/AdminBtn/AdminBtn";
-
+import {fetchApi} from "../../../utils/fetchApi";
+import {errorHandling} from "../../../utils/errorHandling";
 
 export const ClientRegisterLogin = () => {
     //register
@@ -26,22 +27,15 @@ export const ClientRegisterLogin = () => {
         setLoggedName('');
 
         try {
-            const res = await fetch(`${apiUrl}/shop/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userLoginName,
-                    userLoginPassword,
-                })
-            });
+            setLoading(true);
+            const res = await fetchApi(
+                'shop/login',
+                'POST',
+                {userLoginName, userLoginPassword} as UserLoginEntity
+            )
 
-            if ([400 || 500 || 404].includes(res.status)) {
-                const err = await res.json();
-                setErrorLogin(err.message);
-                return
-            }
+            await errorHandling(res, setErrorLogin);
+
             setErrorLogin('');
             setUserLoginName('');
             setUserLoginPassword('');
@@ -54,28 +48,24 @@ export const ClientRegisterLogin = () => {
         }
     }
 
+    if(loading) return <Spinner/>;
+
     const sendRegisterForm = async (e: SyntheticEvent) => {
         e.preventDefault();
         setLoading(true);
         setRegisteredName('');
 
         try {
-            const res = await fetch(`${apiUrl}/shop/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userRegisterName,
-                    userRegisterPassword,
-                })
-            });
+            setLoading(true);
 
-            if ([400 || 500 || 404].includes(res.status)) {
-                const err = await res.json();
-                setErrorRegister(err.message);
-                return
-            }
+            const res = await fetchApi(
+                'shop/register',
+                'POST',
+                {userRegisterName, userRegisterPassword} as UserRegisterEntity
+                );
+
+            await errorHandling(res, setErrorRegister);
+
             setErrorRegister('');
             setUserRegisterName('');
             setUserRegisterPassword('');
@@ -88,9 +78,7 @@ export const ClientRegisterLogin = () => {
         }
     }
 
-    if (loading) {
-        return <Spinner/>
-    }
+    if (loading) return <Spinner/>;
 
     return (
         <>
@@ -113,7 +101,7 @@ export const ClientRegisterLogin = () => {
             {
                 loggedName && (
                     <>
-                        <p>Zostałeś poprawnie zalogowany jako {loggedName}</p>
+                        <h2>Zostałeś poprawnie zalogowany jako {loggedName}</h2>
                         <AdminBtn text="Przejdź do sklepu" to="/shop"/>
                     </>
                 )

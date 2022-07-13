@@ -1,12 +1,3 @@
 .active {
     background-color: lightgreen;
 }
-
-ul {
-    display: flex;
-    list-style: none;
-}
-
-li  {
-    margin: 20px 15px;
-}

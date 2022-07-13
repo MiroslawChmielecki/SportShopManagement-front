@@ -1,8 +1,13 @@
-import { BadmintonProductKind, BaseballProductKind, BasketballProductKind, HockeyProductKind, RugbyProductKind, SoccerProductKind, TennisProductKind } from "types";
+import { BadmintonProductKind, BaseballProductKind, BasketballProductKind, HockeyProductKind,
+    ProductImageObj, RugbyProductKind, SoccerProductKind, TennisProductKind } from "types";
 import {productImages} from "./product.images";
+import {Dispatch, SetStateAction} from "react";
 const {Badminton, Baseball, Basketball, Rugby, Hockey, Tennis, Soccer} = productImages
 
-export const selectImgDependOnKindProduct = (productKind: string, setImages: any) => {
+export const selectImgObjDependOnKindProduct = (
+    productKind: string,
+    setImages: Dispatch<SetStateAction<ProductImageObj[] | null>>) => {
+
     switch (productKind) {
         case BadmintonProductKind.rackets:
             setImages(Badminton.Rackets)
